@@ -1,0 +1,9 @@
+# Ambiente Virtual do Python
+.venv/
+__pycache__/
+
+# Arquivos de sistema do Mac
+.DS_Store
+
+# Dados pesados do Kaggle
+dados/raw/
