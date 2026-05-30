@@ -5,5 +5,9 @@ __pycache__/
 # Arquivos de sistema do Mac
 .DS_Store
 
-# Dados pesados do Kaggle
+# Dados pesados do Kaggle (FER2013)
 dados/raw/
+
+# Logs e relatórios gerados dinamicamente
+*.csv
+*.html
