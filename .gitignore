@@ -7,6 +7,7 @@ __pycache__/
 
 # Dados pesados do Kaggle (FER2013)
 dados/raw/
+dados/capturas_emocoes/
 
 # Logs e relatórios gerados dinamicamente
 *.csv

@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import os
+import time
+from datetime import datetime
 from src.captura.cameraManager import CameraManager
 from src.processamento.faceTracker import RastreamentoFacial
 from src.processamento.dinamicaGrupo import AnalisadorDinamica
@@ -17,7 +20,6 @@ def processar_ia_no_frame(frame, rastreador, analisador, cores_emocoes):
     emocoes_frame = []
     
     for (x, y, w, h) in rostos:
-        # Proteção contra recortes fora da tela
         if x < 0 or y < 0 or w == 0 or h == 0: 
             continue
             
@@ -25,7 +27,6 @@ def processar_ia_no_frame(frame, rastreador, analisador, cores_emocoes):
         emocao = analisador.prever_emocao(rosto_recortado)
         emocoes_frame.append(emocao)
         
-        # Desenha as marcações no rosto
         cor = cores_emocoes.get(emocao, (0, 255, 0))
         cv2.rectangle(frame, (x, y), (x+w, y+h), cor, 2)
         cv2.putText(frame, emocao, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, cor, 2)
@@ -35,29 +36,40 @@ def processar_ia_no_frame(frame, rastreador, analisador, cores_emocoes):
 def iniciar_aplicacao():
     print("[INFO] Iniciando o sistema de Inferência em Tempo Real...")
     
+    # --- CONFIGURAÇÃO DE CAPTURA DE FOTOS ---
+    pasta_fotos = "dados/capturas_emocoes"
+    os.makedirs(pasta_fotos, exist_ok=True) 
+    
+    ultimo_salvamento = time.time()
+    tempo_cooldown = 3.0 # Tira no máximo 1 foto a cada 3 segundos
+    # ----------------------------------------------
+
+    # Inicialização dos módulos
     rastreador = RastreamentoFacial()
     analisador = AnalisadorEmocoes()
     dinamica = AnalisadorDinamica()
     registrador = RegistradorDados()
 
     cores_emocoes = {
-        'Alegria': (0, 255, 0), # Verde
-        'Raiva': (0, 0, 255), # Vermelho
-        'Tristeza': (255, 0, 0), # Azul
-        'Medo': (0, 165, 255), # Laranja
-        'Nojo': (128, 0, 128), # Roxo
-        'Surpresa': (255, 255, 0), # Ciano
-        'Neutro': (255, 255, 255) # Branco
+        'Alegria': (0, 255, 0),
+        'Raiva': (0, 0, 255),
+        'Tristeza': (255, 0, 0),
+        'Medo': (0, 165, 255),
+        'Nojo': (128, 0, 128),
+        'Surpresa': (255, 255, 0),
+        'Neutro': (255, 255, 255)
     }
 
-    usar_multi_camera = False
+    usar_multi_camera = False # Mude para True quando quiser usar o celular/webcam usb
     #url_celular = "http://192.168.1.11:8080/video"
     camera_index_2 = 1
 
-    print("[INFO] Abrindo câmera principal...")
+    print("[INFO] Abrindo as câmeras configuradas...")
     with CameraManager(camera_index=0) as cam_notebook:
         
-        # Se o usuário optou por câmera única, criamos um fluxo vazio para a externa
+        # ==============================================================
+        # MODO 1: CÂMERA ÚNICA
+        # ==============================================================
         if not usar_multi_camera:
             print("[INFO] Executando em modo de Câmera Única.")
             while True:
@@ -72,20 +84,32 @@ def iniciar_aplicacao():
                 texto_status, cor_status = dinamica.analisar_grupo(emocoes_notebook)
                 registrador.registrar_frame(emocoes_notebook, texto_status)
 
-                # Redimensiona para manter o padrão visual do painel
                 frame_not_redim = cv2.resize(frame_notebook, (640, 480))
-                cv2.putText(frame_not_redim, "CAM 1: INTERNAL", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+                cv2.putText(frame_not_redim, "CAM 1: INTERNA", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-                # HUD Superior
                 altura_barra = 40
                 cv2.rectangle(frame_not_redim, (0, 0), (frame_not_redim.shape[1], altura_barra), (0, 0, 0), -1)
                 cv2.putText(frame_not_redim, f"STATUS: {texto_status}", (10, 28), cv2.FONT_HERSHEY_DUPLEX, 0.7, cor_status, 2)
 
+                # --- NOVO: AUTO-SAVE DA FOTO (MODO ÚNICO) ---
+                if len(emocoes_notebook) > 0:
+                    tempo_atual = time.time()
+                    if (tempo_atual - ultimo_salvamento) > tempo_cooldown:
+                        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                        caminho_foto = f"{pasta_fotos}/snapshot_{timestamp}.jpg"
+                        cv2.imwrite(caminho_foto, frame_not_redim)
+                        print(f"[SNAPSHOT] Foto salva: {caminho_foto}")
+                        ultimo_salvamento = tempo_atual
+                # ---------------------------------------------
+
+                # ATENÇÃO: O imshow e o waitKey ficam FORA do if das fotos!
                 cv2.imshow("Dinamica Social - Analise em Tempo Real", frame_not_redim)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
         
-        # Se configurado para multi-câmera, abre o segundo gerenciador de contexto
+        # ==============================================================
+        # MODO 2: MÚLTIPLAS CÂMERAS
+        # ==============================================================
         else:
             print(f"[INFO] Conectando à câmera secundária (Índice/URL: {camera_index_2})...")
             with CameraManager(camera_index=camera_index_2) as cam_externa:
@@ -94,7 +118,7 @@ def iniciar_aplicacao():
                     sucesso_externa, frame_externa = cam_externa.read()
 
                     if not sucesso_notebook or not sucesso_externa:
-                        print("[AVISO] Falha ao capturar frames de uma das câmeras. Encerrando...")
+                        print("[AVISO] Falha ao capturar frames. Encerrando...")
                         break
 
                     frame_notebook = cv2.flip(frame_notebook, 1)
@@ -117,6 +141,19 @@ def iniciar_aplicacao():
                     altura_barra = 40
                     cv2.rectangle(painel_cftv, (0, 0), (painel_cftv.shape[1], altura_barra), (0, 0, 0), -1)
                     cv2.putText(painel_cftv, f"STATUS GLOBAL DA SALA: {texto_status}", (10, 28), cv2.FONT_HERSHEY_DUPLEX, 0.7, cor_status, 2)
+
+                    # --- AUTO-SAVE DA FOTO (MODO MULTI) ---
+                    # Salva se achar rosto em QUALQUER uma das câmeras
+                    if len(emocao_grupo_total) > 0:
+                        tempo_atual = time.time()
+                        if (tempo_atual - ultimo_salvamento) > tempo_cooldown:
+                            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                            caminho_foto = f"{pasta_fotos}/snapshot_{timestamp}.jpg"
+                            # Neste modo, ele salva o painel_cftv (as duas câmeras juntas!)
+                            cv2.imwrite(caminho_foto, painel_cftv)
+                            print(f"[SNAPSHOT] Foto salva do painel: {caminho_foto}")
+                            ultimo_salvamento = tempo_atual
+                    # ---------------------------------------------
 
                     cv2.imshow("Dinamica Social - Analise em Tempo Real", painel_cftv)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
