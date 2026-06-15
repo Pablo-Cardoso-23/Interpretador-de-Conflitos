@@ -1,63 +1,80 @@
+Compreendido perfeitamente. Em ambientes académicos e corporativos rigorosos, a formatação puramente textual transmite maior sobriedade e foco técnico.
+
+Abaixo encontra a versão final do seu `README.md`, ajustada para o português europeu e totalmente isenta de caracteres visuais (emojis), mantendo a densidade técnica e o profissionalismo exigidos para a apresentação:
+
+---
+
 # Interpretador de Dinâmica Social via Visão Computacional
 
 ## Propósito do Projeto
 
-O Interpretador de Dinâmica Social é um sistema de monitoramento e análise de interações humanas em tempo real. Utilizando técnicas avançadas de Visão Computacional e Aprendizagem Profunda (Deep Learning), o projeto visa identificar estados emocionais individuais e processar essas informações de forma agregada para inferir o clima social de um ambiente.
+O Interpretador de Dinâmica Social é um sistema autónomo de monitorização e análise de interações humanas em tempo real. Operando estritamente sob o paradigma de Edge Computing (processamento local na borda, sem envio de imagens para a nuvem), o projeto garante Privacy by Design enquanto utiliza técnicas avançadas de Visão Computacional e Redes Neurais Convolucionais (CNNs) para identificar microexpressões faciais.
 
-O principal objetivo é fornecer dados objetivos sobre o engajamento, a coesão e o nível de tensão em grupos, permitindo intervenções mais precisas em ambientes educacionais, reuniões corporativas ou análises de segurança e bem-estar.
+O principal objetivo é processar emoções individuais de forma agregada para inferir o clima social de um ambiente. A ferramenta fornece dados objetivos sobre o envolvimento, a coesão e o nível de tensão em grupos, permitindo intervenções baseadas em dados em salas de aula, ambientes corporativos e espaços públicos.
 
 ## Funcionalidades Principais
 
-* Rastreamento Facial Multi-Agente: Detecção simultânea de múltiplos rostos utilizando algoritmos de Haar Cascades via OpenCV.
-* Classificação de Emoções em Tempo Real: Rede Neural Convolucional (CNN) treinada para identificar sete estados emocionais: Raiva, Nojo, Medo, Alegria, Neutro, Tristeza e Surpresa.
-* Motor de Regras de Dinâmica Social: Algoritmo que interpreta a combinação de emoções do grupo para diagnosticar estados como Sinergia, Tensão, Conflito ou Atenção Coletiva.
-* Logging Analítico: Registro automatizado de métricas em formato tabular (CSV) para auditoria e análise histórica.
-* Dashboards Interativos: Geração de relatórios visuais utilizando Plotly para visualização de tendências e distribuição de clima social.
+* **Pipeline Multi-Câmara Sincronizado:** Suporte para processamento simultâneo de múltiplos dispositivos de vídeo, permitindo a fusão de matrizes de câmaras físicas (USB/Embutidas) e fluxos de rede (Câmaras IP/Telemóveis via HTTP/RTSP).
+* **Rastreamento Estocástico de Baixa Latência:** Deteção facial multi-agente otimizada utilizando Haar Cascades via OpenCV, garantindo alta taxa de quadros (FPS) e eficiência de CPU.
+* **Inteligência Artificial Anti-Overfitting:** Rede Neural Convolucional construída de raiz (TensorFlow/Keras) com camadas de Data Augmentation, Batch Normalization e Dropout, mitigando vieses e penalizando o desbalanceamento de classes através de Class Weights.
+* **Motor Heurístico de Dinâmica Social:** Algoritmo que funde o estado emocional de todos os agentes detetados para diagnosticar instantaneamente a atmosfera do ambiente (ex: Sinergia, Tensão, Foco, Conflito).
+* **Heads-Up Display (HUD) Global:** Interface vetorial sobreposta ao vídeo em tempo real, gerando um painel estilo CFTV profissional.
+* **Auditoria Visual (Snapshots):** Sistema de gravação automática com temporizador de cooldown (prevenindo estrangulamentos de I/O), que armazena os frames validados com bounding boxes para auditoria posterior.
+* **Geração Autónoma de Analytics:** Criação automática de registos estruturados em .csv e compilação de Dashboards HTML interativos via Plotly no encerramento seguro da sessão.
 
 ## Importância e Aplicabilidade
 
-A análise manual de dinâmica de grupo é subjetiva e propensa a vieses humanos. Este projeto oferece uma camada de inteligência de dados que pode ser vital em diversos setores:
+A avaliação manual de dinâmica de grupo é falha, subjetiva e propensa a vieses cognitivos. Este projeto oferece uma camada de inteligência e telemetria vital para:
 
-1.  Educação: Auxiliar professores a identificar queda de atenção ou frustração coletiva durante uma aula.
-2.  Recursos Humanos: Avaliar o clima de reuniões e a recepção de novas propostas por parte da equipe.
-3.  Segurança e Saúde: Detectar precocemente sinais de conflito intenso ou desconforto em locais públicos ou instituições de cuidado.
+* **Educação:** Mapear quebras de atenção, envolvimento ou frustração coletiva durante as aulas.
+* **Gestão Corporativa (RH):** Avaliar a recetividade de equipas a novas propostas e o clima de stress em reuniões.
+* **Segurança Institucional:** Deteção precoce de anomalias comportamentais e focos de conflito intenso em locais fechados.
 
 ## Arquitetura Técnica
 
-O projeto foi construído seguindo os princípios de Responsabilidade Única (SRP) e Código Limpo (Clean Code), dividido nos seguintes módulos:
+A aplicação foi desenhada respeitando a Clean Architecture e o princípio da Responsabilidade Única (SRP). O acoplamento entre hardware, matemática e interface foi isolado:
 
-* Captura: Gerenciamento de dispositivos de vídeo e fluxos de câmera.
-* Processamento: Rastreamento facial e normalização de dados brutos.
-* Modelo: Inferência via TensorFlow/Keras utilizando modelos salvos em formato HDF5/Keras.
-* Analítico: Motores de regras sociais, registro de logs e geração de dashboards.
+* `/src/captura`: Abstração de hardware e rotinas de leitura de buffer de vídeo.
+* `/src/processamento`: Módulos de rastreamento geométrico, motor de dinâmica de grupo e estruturação de Dashboards.
+* `/src/modelo`: Encapsulamento dos tensores da IA e scripts de inferência probabilística.
+* `/dados`: Diretório protegido (.gitignored) para alocação de datasets originais, registos tabulares temporais, snapshots de auditoria e relatórios finais.
 
-### Tecnologias Utilizadas
+## Tecnologias e Dependências
 
-* Linguagem: Python 3.12
-* Visão Computacional: OpenCV
-* Inteligência Artificial: TensorFlow, Keras e Scikit-Learn
-* Manipulação de Dados: Pandas e NumPy
-* Visualização: Plotly
-
-## Estrutura do Repositório
-
-* src/captura: Módulos de interface com hardware de vídeo.
-* src/processamento: Lógica de rastreamento facial e preparação de dados.
-* src/modelo: Definição da arquitetura da rede neural e scripts de inferência.
-* dados/raw: Diretório para armazenamento dos datasets originais (ex: FER2013).
-* dados/processados: Local de saída para modelos treinados, logs e relatórios interativos.
+* **Linguagem Base:** Python 3.12
+* **Visão Computacional e Matrizes:** OpenCV (cv2) e NumPy
+* **Deep Learning:** TensorFlow e Keras
+* **Engenharia de Dados:** Pandas
+* **Visualização Web:** Plotly
 
 ## Como Executar
 
-### Pré-requisitos
-* Ambiente Virtual (venv) configurado com Python 3.12.
-* Instalação das dependências listadas no arquivo de requisitos.
+**1. Preparação do Ambiente**
+Certifique-se de que está a correr o sistema dentro de um ambiente virtual (`.venv`) com as dependências instaladas:
 
-### Execução do Sistema
-1.  Para treinar o modelo: Execute o script treinarModelo.py garantindo a presença do dataset no diretório correto.
-2.  Para iniciar o monitoramento: Execute o script main.py.
-3.  Para gerar relatórios: Após encerrar a sessão de monitoramento, execute o script gerarDashboard.py.
+```bash
+pip install -r requirements.txt
 
-## Desenvolvimento e Autoria
+```
 
-Este projeto foi desenvolvido como parte de um estudo avançado em Inteligência Artificial e Visão Computacional, focando na aplicação prática de redes neurais para a resolução de problemas de interpretação de sinais e dinâmicas de grupo.
+**2. Execução da Inferência em Tempo Real**
+O sistema pode ser testado com câmara única ou em modo CFTV (Multi-câmara). Abra o ficheiro `main.py` e configure as variáveis na inicialização:
+
+* `usar_multi_camera = False` (Testes locais apenas com a webcam do computador).
+* `usar_multi_camera = True` (Ativa a procura pela câmara IP ou USB secundária).
+
+Inicie o orquestrador:
+
+```bash
+python main.py
+
+```
+
+**3. Encerramento Seguro e Geração de Relatórios**
+
+* Com a janela de vídeo em foco, **pressione a tecla `q**`.
+* O sistema fará o teardown gracioso, desligando o hardware, guardando os registos de sessão no disco e compilando imediatamente o ficheiro de Dashboard HTML interativo. As imagens de auditoria estarão disponíveis na pasta `dados/capturas_emocoes/`.
+
+---
+
+*Desenvolvido como projeto aplicado de Ciência da Computação, Inteligência Artificial, focando na intersecção entre redes neurais convolucionais e análise comportamental.*
