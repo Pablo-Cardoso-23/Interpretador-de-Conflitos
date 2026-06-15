@@ -1,6 +1,3 @@
-Compreendido perfeitamente. Em ambientes académicos e corporativos rigorosos, a formatação puramente textual transmite maior sobriedade e foco técnico.
-
-Abaixo encontra a versão final do seu `README.md`, ajustada para o português europeu e totalmente isenta de caracteres visuais (emojis), mantendo a densidade técnica e o profissionalismo exigidos para a apresentação:
 
 ---
 
